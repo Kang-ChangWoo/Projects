@@ -4,12 +4,12 @@
 | Index  | Project_title | Details | Languages | Period |
 :---|:---:|:---:|:---:|---:
 | 1  | EBEST 옵션종목 자동 트레이딩 봇  | 장 중에 옵션코드를  | Python, Ebest API | 2019.01~ |
-| 2  | Content Cell  | ------------- | ------------- | ------------- |
+| 2  | Content Cell  | - | - | - |
 
 | Index  | Project_title | Details |
 :---|:---:|---:
 | 1  | EBEST 옵션종목 자동 트레이딩 봇  | 장 중에 옵션코드를  |
-| 2  | Content Cell  | ------------- |
+| 2  | Content Cell  | - |
 
 
 
