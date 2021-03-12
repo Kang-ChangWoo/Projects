@@ -267,6 +267,29 @@ class XReal_OC0_:
                 CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
 
 
+            current_time_int = int(datetime.now().strftime("%H%M")) # 추후에 900까지 고려할 것.
+            if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) > 0:
+                print("높은 가격 주식이 매도중")
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"]) + 4 < current_time_int:
+                    print("재주문 합니다.")
+                    # 주문 시간이나 값의 변환은 CF0AT00200에 추가할 것
+
+            if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
+                print("높은 가격 주식이 매수중")
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"]) + 4 < current_time_int:
+                    print("재주문 합니다.")
+
+            if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                print("높은 가격 주식이 매도중")
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"]) + 4 < current_time_int:
+                    print("재주문 합니다.")
+
+            if len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) > 0:
+                print("높은 가격 주식이 매수중")
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"]) + 4 < current_time_int:
+                    print("재주문 합니다.")
+
+
         #분기 150개 이상의 데이터가 쌓였다면, 아래를 실행한다.
         #1
         elif isOver150 == True:
@@ -579,6 +602,7 @@ def CFOAT00100(계좌번호='',비밀번호='',선물옵션종목번호='0',매�
         tempDict["ordPrice"] = 주문가격
         tempDict["ordVolume"] = 주문수량
         tempDict["OrgOrdNo"] = "origin"
+        tempDict["OrdTime"] =  datetime.now().strftime("%H%M")
 
         transaction_detailedInfo[주문번호] = tempDict
         print("★ 데이터 추가했습니다.")
