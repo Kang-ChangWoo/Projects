@@ -256,13 +256,10 @@ class XReal_OC0_:
             print("ongOfferState", transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'])
             print()
 
-            # if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) < 1 :
+            # 테스트 코드
             if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) < 1 :
-
-
                 print(stockOpts['highStock'],"1 개 매도(판매) 주문완료")
                 CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],주문수량='1') #
-
                 print(stockOpts['lowStock'],"2 개 매수(구매) 주문완료")
                 CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
 
@@ -270,24 +267,48 @@ class XReal_OC0_:
             current_time_int = int(datetime.now().strftime("%H%M")) # 추후에 900까지 고려할 것.
             if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) > 0:
                 print("높은 가격 주식이 매도중")
-                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"]) + 4 < current_time_int:
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"]) + 0 < current_time_int:
                     print("재주문 합니다.")
+                    for ordNum in transaction_statusInfo[stockOpts['highStock']]['ongOfferState']:
+                        CFOAT00200(계좌번호=userInfo['account_num'], \
+                        비밀번호=userInfo['cert_password'], \
+                        선물옵션종목번호=stockOpts['highStock'], \
+                        원주문번호=ordNum, \
+                        선물옵션호가유형코드=transaction_detailedInfo[ordNum]['hoType'], \
+                        주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'], \
+                        정정수량=transaction_detailedInfo[ordNum]['ordVolume'])
                     # 주문 시간이나 값의 변환은 CF0AT00200에 추가할 것
 
             if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
                 print("높은 가격 주식이 매수중")
-                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"]) + 4 < current_time_int:
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"]) + 0 < current_time_int:
                     print("재주문 합니다.")
 
             if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
-                print("높은 가격 주식이 매도중")
-                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"]) + 4 < current_time_int:
+                print("낮은 가격 주식이 매도중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"]) + 0 < current_time_int:
                     print("재주문 합니다.")
 
             if len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) > 0:
-                print("높은 가격 주식이 매수중")
-                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"]) + 4 < current_time_int:
+                print("낮은 가격 주식이 매수중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"]) + 0 < current_time_int:
                     print("재주문 합니다.")
+                    for ordNum in transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']:
+                        CFOAT00200(계좌번호=userInfo['account_num'], \
+                        비밀번호=userInfo['cert_password'], \
+                        선물옵션종목번호=stockOpts['lowStock'], \
+                        원주문번호=ordNum, \
+                        선물옵션호가유형코드=transaction_detailedInfo[ordNum]['hoType'], \
+                        주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curOfferho'], \
+                        정정수량=transaction_detailedInfo[ordNum]['ordVolume'])
 
 
         #분기 150개 이상의 데이터가 쌓였다면, 아래를 실행한다.
@@ -311,63 +332,130 @@ class XReal_OC0_:
                 """
 
 
+
             stockOpts_indicatorInfo['deviationLogic']['avgValue'] = sum(stockOpts_indicatorLog['deviationLogic']['log']) / len(stockOpts_indicatorLog['deviationLogic']['log'])
 
             tempList.append(stockOpts_indicatorInfo['deviationLogic']['avgValue'])
             stockOpts_realtimeLog.append(tempList)
 
-            if stockOpts_indicatorLog['deviationLogic']['log'][-1] >= 0.03 and stockOpts_indicatorLog['deviationLogic']['log'][-2] < 0.03:   #
-                print("주문시점입니다. 현재는 미사용중에 있습니다.")
-                if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) < 1:
-                    # print(stockOpts['highStock'],"1 개 매도(판매) 주문완료")
-                    # CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],주문수량='1') #
-                    #
-                    # print(stockOpts['lowStock'],"2 개 매수(구매) 주문완료")
-                    # CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
-                    #
+
+            print()
+            print("★★ Realdata receive - 개수 파악 ★★")
+            print("HighStock")
+            print("ongBidState",transaction_statusInfo[stockOpts['highStock']]['ongBidState'])
+            print("ongOfferState", transaction_statusInfo[stockOpts['highStock']]['ongOfferState'])
+            print("LowStock")
+            print("ongBidState", transaction_statusInfo[stockOpts['lowStock']]['ongBidState'])
+            print("ongOfferState", transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'])
+            print()
+
+
+            current_time_int = int(datetime.now().strftime("%H%M")) # 추후에 900까지 고려할 것.
+
+
+
+
+            if stockOpts_indicatorLog['deviationLogic']['log'][-1] >= 0.03 and stockOpts_indicatorLog['deviationLogic']['log'][-2] < 0.03:
+                print("Deviation이 주문 시점이 됐습니다.")
+
+                if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) < 1 :
+                    print(stockOpts['highStock'],"1 개 매도(판매) 주문완료")
+                    CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],주문수량='1') #
+
+                    print(stockOpts['lowStock'],"2 개 매수(구매) 주문완료")
+                    CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
                     # #@1 매도(판매) @2 매수(구입)
+
                     global upperCaseCount
                     upperCaseCount += 1
-            #
-            #
-            #         time.sleep(5)
-            #         CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원주문번호='',선물옵션호가유형코드='',주문가격='',정정수량='')
-            #         if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
-            #             for ordNum in transaction_statusInfo[stockOpts['highStock']]['ongOfferState']:
-            #                 CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], 선물옵션종목번호=stockOpts['highStock'], \
-            #                 원주문번호=ordNum,선물옵션호가유형코드=transaction_detailedInfo[ordNum]['hoType'],주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],정정수량=transaction_detailedInfo[ordNum]['hoType'])
-            #                 #주문 수량이 다를 가능성이 있다.
-            #         if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
-            #             CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], \
-            #             선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
-            elif len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) < 1 :
-                print("테스트 주문입니다.")
 
-                print(stockOpts['highStock'],"1 개 매도(판매) 주문완료")
-                CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],주문수량='1') #
-
-                print(stockOpts['lowStock'],"2 개 매수(구매) 주문완료")
-                CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
-
-                #@1 매도(판매) @2 매수(구입)
-
-
-            #
-            #
             elif stockOpts_indicatorLog['deviationLogic']['log'][-1] <= -0.03 and stockOpts_indicatorLog['deviationLogic']['log'][-2] > -0.03:
-            #     if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) < 1:
-            #         print(stockOpts['lowStock'],"2 개 매도(판매) 주문완료")
-            #         CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curOfferho'],주문수량='2') #
-            #
-            #         print(stockOpts['highStock'],"1 개 매수(구매) 주문완료")
-            #         CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curBidho'],주문수량='1') #
-            #
+                print("Deviation이 주문 시점이 됐습니다.")
+                if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) + len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) < 1:
+                    print(stockOpts['lowStock'],"2 개 매도(판매) 주문완료")
+                    CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['lowStock'],매매구분="1",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curOfferho'],주문수량='2') #
+
+                    print(stockOpts['highStock'],"1 개 매수(구매) 주문완료")
+                    CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'],선물옵션종목번호=stockOpts['highStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curBidho'],주문수량='1') #
+
                     global lowerCaseCount
                     lowerCaseCount += 1
 
             else:
                 print("주문없이 종료시켰습니다.")
             print("\n")
+
+
+
+
+
+            if len(transaction_statusInfo[stockOpts['highStock']]['ongBidState']) > 0:
+                print("높은 가격 주식이 매도중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongBidState'][0]]["OrdTime"]) + 0 < current_time_int:
+                    print("재주문 합니다.")
+
+                    # CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원주문번호='',선물옵션호가유형코드='',주문가격='',정정수량='')
+                    if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
+                        for ordNum in transaction_statusInfo[stockOpts['highStock']]['ongOfferState']:
+                            CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], 선물옵션종목번호=stockOpts['highStock'], \
+                            원주문번호=ordNum,선물옵션호가유형코드=transaction_detailedInfo[ordNum]['hoType'],주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],정정수량=transaction_detailedInfo[ordNum]['hoType'])
+                            #주문 수량이 다를 가능성이 있다.
+
+                    # 재주문
+                    #
+                    #         time.sleep(5)
+                    #         CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원주문번호='',선물옵션호가유형코드='',주문가격='',정정수량='')
+                    #         if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
+                    #             for ordNum in transaction_statusInfo[stockOpts['highStock']]['ongOfferState']:
+                    #                 CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], 선물옵션종목번호=stockOpts['highStock'], \
+                    #                 원주문번호=ordNum,선물옵션호가유형코드=transaction_detailedInfo[ordNum]['hoType'],주문가격=stockOpts_statusInfo[stockOpts['highStock']]['curOfferho'],정정수량=transaction_detailedInfo[ordNum]['hoType'])
+                    #                 #주문 수량이 다를 가능성이 있다.
+                    #         if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                    #             CFOAT00100(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], \
+                    #             선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
+
+
+
+                    # 주문 시간이나 값의 변환은 CF0AT00200에 추가할 것
+
+            if len(transaction_statusInfo[stockOpts['highStock']]['ongOfferState']) > 0:
+                print("높은 가격 주식이 매수중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['highStock']]['ongOfferState'][0]]["OrdTime"]) + 0 < current_time_int:
+                    print("재주문 합니다.")
+                    if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                        CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], \
+                        선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
+
+
+            if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                print("높은 가격 주식이 매도중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongBidState'][0]]["OrdTime"]) + 0 < current_time_int:
+                    print("재주문 합니다.")
+                    if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                        CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], \
+                        선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
+
+
+            if len(transaction_statusInfo[stockOpts['lowStock']]['ongOfferState']) > 0:
+                print("높은 가격 주식이 매수중")
+                print(int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"])+0)
+                print(current_time_int)
+                if int(transaction_detailedInfo[transaction_statusInfo[stockOpts['lowStock']]['ongOfferState'][0]]["OrdTime"]) + 0 < current_time_int:
+                    print("재주문 합니다.")
+                    if len(transaction_statusInfo[stockOpts['lowStock']]['ongBidState']) > 0:
+                        CFOAT00200(계좌번호=userInfo['account_num'],비밀번호=userInfo['cert_password'], \
+                        선물옵션종목번호=stockOpts['lowStock'],매매구분="2",선물옵션호가유형코드="00",주문가격=stockOpts_statusInfo[stockOpts['lowStock']]['curBidho'],주문수량='2') #
+
+
+
+
+
 
         print("길이 확인",len(stockOpts_statusLog[stockOpt]['Bidho']),len(stockOpts_statusLog[stockOpt]['Offerho']),len(stockOpts_statusLog[stockOpt]['midHo']),len(stockOpts_indicatorLog['deviationLogic']['log']))
         print()
@@ -576,8 +664,17 @@ def CFOAT00100(계좌번호='',비밀번호='',선물옵션종목번호='0',매�
         비밀번호 = query.GetFieldData("CFOAT00100OutBlock1", "Pwd", i).strip() #비밀번호
         매매구분 = query.GetFieldData("CFOAT00100OutBlock1", "BnsTpCode", i).strip() #매매구분
         주문번호 = query.GetFieldData("CFOAT00100OutBlock2", "OrdNo", i).strip() #주문번호
+        OrdSeqno = query.GetFieldData("CFOAT00100OutBlock1", "OrdSeqno", i).strip() #매매구분
+        Grpid = query.GetFieldData("CFOAT00100OutBlock1", "Grpid", i).strip() #주문번호
+        PtflNo = query.GetFieldData("CFOAT00100OutBlock1", "PtflNo", i).strip() #매매구분
+        BskNo = query.GetFieldData("CFOAT00100OutBlock1", "BskNo", i).strip() #주문번호
+        TrchNo = query.GetFieldData("CFOAT00100OutBlock1", "TrchNo", i).strip() #매매구분
+        ItemNo = query.GetFieldData("CFOAT00100OutBlock1", "ItemNo", i).strip() #주문번호
 
-        lst = [레코드갯수,계좌번호,비밀번호, 매매구분,주문번호]
+        FundId = query.GetFieldData("CFOAT00100OutBlock1", "FundId", i).strip() #매매구분
+        FundOrdNo = query.GetFieldData("CFOAT00100OutBlock1", "FundOrdNo", i).strip() #주문번호
+
+        lst = [레코드갯수,계좌번호,비밀번호, 매매구분,주문번호,OrdSeqno,Grpid,PtflNo,BskNo,TrchNo,ItemNo,FundId,FundOrdNo]
 
         result.append(lst)
 
@@ -650,14 +747,14 @@ def CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원�
     while XAQueryEvents.상태 == False:
         pythoncom.PumpWaitingMessages()
 
-    매매구분 = transaction_detailedInfo[주문번호]['transactionType']
+    매매구분 = transaction_detailedInfo[원주문번호]['transactionType']
 
     if 매매구분 == "1": # 매도
-        transaction_statusInfo[선물옵션종목번호]['finBidState'].append(주문번호)
-        transaction_statusInfo[선물옵션종목번호]['ongBidState'].remove(주문번호)
+        transaction_statusInfo[선물옵션종목번호]['finBidState'].append(원주문번호)
+        transaction_statusInfo[선물옵션종목번호]['ongBidState'].remove(원주문번호)
     elif 매매구분 == "2": # 매수
-        transaction_statusInfo[선물옵션종목번호]['finOfferState'].append(주문번호)
-        transaction_statusInfo[선물옵션종목번호]['ongOfferState'].remove(주문번호)
+        transaction_statusInfo[선물옵션종목번호]['finOfferState'].append(원주문번호)
+        transaction_statusInfo[선물옵션종목번호]['ongOfferState'].remove(원주문번호)
 
 
     result = []
@@ -695,7 +792,7 @@ def CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원�
 
         transaction_detailedInfo[주문번호] = tempDict
 
-    transaction_resultLog.append(lst)
+        transaction_resultLog.append(lst)
     XAQueryEvents.상태 = False
 
 
@@ -836,6 +933,7 @@ if __name__ == "__main__":
         stockOpts_realtimeLog = []
         transaction_resultLog = []
         transaction_realtimeLog = []
+        current_time_int = 7
 
         isOver150 = False
 
