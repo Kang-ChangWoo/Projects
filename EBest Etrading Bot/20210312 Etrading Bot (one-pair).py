@@ -797,7 +797,8 @@ def CFOAT00200(계좌번호='',비밀번호='',선물옵션종목번호='0',원�
 
 
 """
-01. 유저 정보를 선택한다. (계좌, ID, 비밀번호 등)
+함수 A Read_and_choose_userInfo
+
 """
 
 def read_and_choose_userInfo(filePath):
@@ -810,7 +811,12 @@ def read_and_choose_userInfo(filePath):
     userInfo_index = int(userInfo_index)
     selectedUserInfo_list = userInfo_df.loc[userInfo_index].tolist()
     print(selectedUserInfo_list,"\n")  # ['모의', 555510.0, 'id', 'PWD', 'PWD', 'PWD', 'demo.ebestsec.co.kr']
-    selectedUserInfo_dict = {"type":selectedUserInfo_list[0],"account_num":str(int(selectedUserInfo_list[1])),"user_id":selectedUserInfo_list[2],"password":selectedUserInfo_list[3],"cert_password":selectedUserInfo_list[4],"URL":selectedUserInfo_list[6]}
+    selectedUserInfo_dict = {"type":selectedUserInfo_list[0], \
+                             "account_num":str(int(selectedUserInfo_list[1])), \
+                             "user_id":selectedUserInfo_list[2], \
+                             "password":selectedUserInfo_list[3], \
+                             "cert_password":selectedUserInfo_list[4], \
+                             "URL":selectedUserInfo_list[6]}
     return selectedUserInfo_dict # dictionary type
 
 """
